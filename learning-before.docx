@@ -1,0 +1,64 @@
+一、概念理解
+1、JSON（全称：JavaScript Object Notation）：是一种轻量级的数据交换格式。
+表现形式：键对值
+如：{
+  "订单号": "202607031234",
+  "金额": 99.5,
+  "已支付": true,
+  "商品列表": ["手机壳", "钢化膜"],
+  "收货地址": {
+    "省份": "江苏",
+    "城市": "南京"
+  }
+}
+极度通用：几乎所有编程语言都有解析 JSON 的内置库。Python 叫 json，JavaScript 叫 JSON.parse()
+2、.pt 是 PyTorch 框架专用的文件后缀名
+每个 .pt 文件是一个 tensor，来自 EgoVideo + SAM2 + Hand Object Detector 的预提取结果（这些预处理不在本仓库）
+这个文件里只存了一个 Tensor（张量），而不是存了完整的模型（通常模型文件会包含很多层结构）
+3、数据来源：“来自 EgoVideo + SAM2 + Hand Object Detector”
+EgoVideo（第一道工序）（数据集）：这是一个第一人称视频数据集（比如戴在头上的 GoPro 拍摄的做菜、修车视频）。它提供了原始的视频帧（图片序列）。
+SAM2（第二道工序，核心）（抠图抠出所有物体）：这是 Meta 公司发布的分割大模型（Segment Anything Model 2）。它的作用是精准抠图——能把视频里每一帧的每一个物体（比如手、杯子、刀）的边缘像素都精确地圈出来，生成“蒙版（Mask）”。
+Hand Object Detector（第三道工序）（识别并配对手和手持物体）：这是一个手-物交互检测器。它专门在 SAM2 抠出的众多物体中，识别出“手”以及“手正在接触/操纵的物体”，并把它们配对（比如“左手 + 正在拿的杯子”）。
+4、annotation_dir 中的 JSON 包含 clip_uid、action_idx、verb_label、noun_label
+第一步：原始视频数据
+    ↓
+EgoVideo 数据集（第一人称视频，比如头戴相机拍摄的做菜视频）
+    ↓
+第二步：预处理（不在本仓库）
+    ↓
+SAM2（分割出所有物体）+ Hand Detector（识别手和交互物体）
+    ↓
+第三步：生成两种文件
+    ├── .pt 文件（每个视频帧的 Tensor 特征）→ 存在 pt_dir
+    └── JSON 标注文件（动作标签）→ 存在 annotation_dir 
+5、原始视频（30fps，10 秒 = 300 帧）
+    ↓
+预处理（SAM2 + Hand Detector，不在本仓库）
+    ↓
+每帧生成一个 .pt 文件：
+    frame_0001.pt, frame_0002.pt, ..., frame_0300.pt
+    ↓
+本仓库的 Dataset.__getitem__()
+    ↓
+取第 t~t+7 帧（共 8 帧）：
+    [frame_t.pt, frame_{t+1}.pt, ..., frame_{t+7}.pt]
+    ↓
+拼成一个序列 Tensor，形状 = [8, 特征维度]
+    ↓
+同时读取对应的 JSON 标注（这个序列对应哪个动作）
+    ↓
+DataLoader 按 batch_size 打包多个序列
+    ↓
+custom_collate_fn 展开成单个动作样本
+    ↓
+喂给模型训练
+6、custom_collate_fn：把多个视频片段拆开，返回多个独立动作
+模型训练时需要一个动作一个动作地喂，而不是按视频打包喂。所以 custom_collate_fn 的作用就是把嵌套结构"拍平
+7、共现矩阵build_cooccurrence_matrix
+从训练集里统计出"哪些 Verb 和 Noun 曾经一起出现过"，并计算出它们的共现概率。这为后续模型推理提供了先验知识——当模型预测出"切"和"胡萝卜"时，可以给予更高置信度；如果预测出"切"和"水"，则进行惩罚或修正。
+过程：统计训练集中 verb-noun 同时出现的频率
+构建条件概率 P(noun|verb) 和 P(verb|noun)
+保存为 cooccurrence_matrix.pt
+如果文件已存在就直接加载，跳过构建
+作用：build_cooccurrence_matrix 就是从训练集里"学习常识"：统计哪些动词和名词经常搭配出现，算成概率存下来（缓存），训练和推理时用它来约束模型，避免预测出"切水"、"倒胡萝卜"这种不合理动作。
+辅助 Loss
