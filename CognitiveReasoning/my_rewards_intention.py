@@ -2,6 +2,7 @@
 import os
 os.environ["HF_HUB_OFFLINE"] = "1"
 import re
+from contextlib import nullcontext
 from typing import List
 
 import torch
@@ -102,7 +103,11 @@ class ActionIntentReward(ORM):
             flags=re.DOTALL
         )
 
-        self.pattern_pair = re.compile(r'^[a-z]+ [a-z]+$', flags=re.I)
+        # EPIC-KITCHENS class labels contain compound tokens such as
+        # ``turn-on``, ``milk:soy`` and occasionally underscores.  They are
+        # still one verb token followed by one noun token.
+        label_token = r'[a-z0-9]+(?:[-_:][a-z0-9]+)*'
+        self.pattern_pair = re.compile(rf'^{label_token} {label_token}$', flags=re.I)
 
 
         self.rank = dist.get_rank() if dist.is_initialized() else 0

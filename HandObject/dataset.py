@@ -22,7 +22,7 @@ class ActionDataset(Dataset):
         super(ActionDataset, self).__init__()
         self.splits = [split.lower() for split in splits]
         for split in self.splits:
-            assert split in ['train', 'val', 'test'],
+            assert split in ['train', 'val', 'test']
 
         self.frame_features_dir = Path(frame_features_dir)
         self.mask_features_dir = Path(mask_features_dir)

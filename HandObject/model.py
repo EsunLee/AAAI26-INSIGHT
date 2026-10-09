@@ -42,7 +42,8 @@ class ActionRecognitionModel(nn.Module):
         noun_num_classes: int = 521,
     ):
         super().__init__()
-        self.frame_stage1 = self._make_lowrank_layer(1408, 2048)
+        self.input_dim = input_dim
+        self.frame_stage1 = self._make_lowrank_layer(self.input_dim, 2048)
         self.frame_norm1 = nn.LayerNorm(2048)
         self.frame_gate1 = nn.Sequential(
             nn.Linear(2048, 512),
@@ -51,7 +52,7 @@ class ActionRecognitionModel(nn.Module):
             nn.Sigmoid()
         )
         self.frame_stage2 = nn.Linear(2048, 256)
-        self.mask_stage1 = self._make_lowrank_layer(1408, 2048)
+        self.mask_stage1 = self._make_lowrank_layer(self.input_dim, 2048)
         self.mask_norm1 = nn.LayerNorm(2048)
         self.mask_gate1 = nn.Sequential(
             nn.Linear(2048, 512),
@@ -106,6 +107,8 @@ class ActionRecognitionModel(nn.Module):
         frame_out = self.frame_mlp(frame_out)
         mask_out = self.mask_mlp(mask_out)
         combined = torch.cat([frame_out, mask_out], dim=-1)
+        if combined.dim() == 2:
+            combined = combined.unsqueeze(1)
         cls_tokens = self.cls_token.expand(bsz, -1, -1)
         x = torch.cat([cls_tokens, combined], dim=1)
         x = self.transformer(x)

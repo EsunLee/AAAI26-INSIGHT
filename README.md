@@ -59,6 +59,11 @@ INSIGHT is a unified two-stage framework for egocentric long-term action anticip
 
 The `HandObject` and `CognitiveReasoning` modules have their own detailed README files and scripts for training and evaluation.
 
+Reproduction-specific documentation for the audited EK55 pipeline:
+
+- [`docs/PROJECT_REPRODUCTION_AUDIT.md`](./docs/PROJECT_REPRODUCTION_AUDIT.md): actual local/remote paths, datasets, weights, data flow, metrics, limitations, and root-cause analysis.
+- [`docs/STAGE2_SFT_FAST_PATH.md`](./docs/STAGE2_SFT_FAST_PATH.md): fastest semantic-recovery route using supervised Stage-2 fine-tuning before any further GRPO.
+
 ## 🛠️ Installation
 
 ### 1. Create Environment

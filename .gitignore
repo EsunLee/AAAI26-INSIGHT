@@ -1,3 +1,9 @@
+# ============================================================
+# INSIGHT (AAAI 2026) — 仓库内容约定
+# 只提交：代码 (*.py/*.sh)、配置与说明文档 (*.md/*.txt)、README 配图 (assets/)
+# 不提交：数据集、模型权重、训练输出、日志、办公文档/结果表格
+# ============================================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -76,7 +82,7 @@ docs/_build/
 target/
 
 # Jupyter Notebook
-.ipynb_checkpoints
+.ipynb_checkpoints/
 
 # IPython
 profile_default/
@@ -111,7 +117,7 @@ ipython_config.py
 # pdm
 #   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
 #   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
-#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#   https://pdm-project.org/en/latest/usage/projects/#working-with-version-control
 #pdm.lock
 #pdm.toml
 .pdm-python
@@ -182,9 +188,9 @@ cython_debug/
 .abstra/
 
 # Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore
 #  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  and can be added to the global gitignore or merged into this file. However, if you prefer,
 #  you could uncomment the following to ignore the entire vscode folder
 # .vscode/
 
@@ -205,3 +211,112 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# ============================================================
+# 项目专用规则 —— INSIGHT (AAAI 2026)
+# ============================================================
+
+# --- macOS 系统文件 ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# --- 编辑器 / IDE ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# --- Claude Code 本地配置（保留 .claude/config.md 环境交接说明）---
+.claude/settings.local.json
+.claude/*.local.*
+
+# --- 数据集目录（数据保留在本地/服务器，不入库）---
+# 用 "dir/*" + 反例，保证 README.md 占位说明仍会被上传
+data/*
+!data/README.md
+datasets/*
+!datasets/README.md
+dataset/*
+!dataset/README.md
+
+# --- 模型权重 / checkpoint ---
+weights/*
+!weights/README.md
+checkpoints/
+checkpoint*/
+*_checkpoint*/
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.onnx
+*.h5
+*.hdf5
+*.caffemodel
+*.bin
+*.msgpack
+
+# --- 特征 / 序列化中间产物 (pkl / npz / lmdb 等) ---
+*.pkl
+*.pickle
+*.joblib
+*.npy
+*.npz
+*.lmdb
+*.mdb
+*.tsm
+*.jsonl
+*.record
+*.tfrecord
+*.index
+
+# --- 训练输出 / 日志 / 可视化追踪 ---
+output/
+outputs/
+runs/
+results/
+logs/
+saved_models/
+wandb/
+.aim/
+mlruns/
+*.log
+*.out
+*.err
+nohup.out
+core
+*.pid
+
+# --- 办公文档 / 下载的论文 / 生成的结果表格与报告 ---
+# 说明性文档请用 .md（docs/*.md 会被上传）
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+*.pdf
+*.csv
+*.html
+
+# --- 压缩包 / 归档 ---
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# --- 大体积媒体（数据集视频帧等；assets/ 下的 README 配图不受影响）---
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+frames/

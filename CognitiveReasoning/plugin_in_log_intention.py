@@ -7,8 +7,8 @@ from typing import Dict, List, Optional
 import json
 import torch
 
-from swift.llm import PtEngine, RequestConfig, Template, to_device
-from swift.llm.infer.protocol import ChatCompletionResponse
+# from swift.llm import PtEngine, RequestConfig, Template, to_device  # v4.2 无此模块
+# from swift.llm.infer.protocol import ChatCompletionResponse
 from swift.plugin import ORM, orms, rm_plugins
 from swift.plugin.rm_plugin import DefaultRMPlugin
 from swift.utils import get_logger
@@ -455,7 +455,8 @@ class CodeRewardByJudge0(ORM):
 class ActionIntentContLin(ORM):
     def __init__(self, target_pairs: int = 20):
         self.max_len = target_pairs
-        self.pattern_pair = re.compile(r'^[a-z]+ [a-z]+$', flags=re.I)
+        label_token = r'[a-z0-9]+(?:[-_:][a-z0-9]+)*'
+        self.pattern_pair = re.compile(rf'^{label_token} {label_token}$', flags=re.I)
 
     def _valid_pair(self, token: str) -> bool:
         return bool(self.pattern_pair.fullmatch(token.strip()))
@@ -498,7 +499,8 @@ class ActionIntentContLin(ORM):
 class ActionIntentContPow(ORM):
     def __init__(self, target_pairs: int = 20):
         self.max_len = target_pairs
-        self.pattern_pair = re.compile(r'^[a-z]+ [a-z]+$', flags=re.I)
+        label_token = r'[a-z0-9]+(?:[-_:][a-z0-9]+)*'
+        self.pattern_pair = re.compile(rf'^{label_token} {label_token}$', flags=re.I)
 
     def _valid_pair(self, token: str) -> bool:
         return bool(self.pattern_pair.fullmatch(token.strip()))
@@ -577,7 +579,7 @@ class ExternalIntentScoreORM(ORM):
                     m = re.search(r'<intention>(.*?)</intention>', gt_content, flags=re.DOTALL)
                     gt_ints_raw.append(m.group(1) if m else "")
 
-        assert len(gt_ints_raw) == B, 
+        assert len(gt_ints_raw) == B
 
 
         gen_ints_raw = []

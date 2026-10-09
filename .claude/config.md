@@ -2,7 +2,7 @@
 
 > **论文**: Intention-Guided Cognitive Reasoning for Egocentric Long-Term Action Anticipation (AAAI 2026)
 > **官方仓库**: https://github.com/CorrineQiu/INSIGHT
-> **最后更新**: 2026-07-16
+> **最后更新**: 2026-08-07
 >
 > ⚠️ 每次配置变更后必须同步更新此文档。项目最终会交接给其他人使用。
 
